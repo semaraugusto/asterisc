@@ -286,15 +286,15 @@ func TestRustWithStd(t *testing.T) {
 		fullTest(t, vmState, po, symbols, false, false)
 	})
 
-	// t.Run("slow", func(t *testing.T) {
-	// 	vmState, err := fast.LoadELF(programELF)
-	// 	require.NoError(t, err, "must load test suite ELF binary")
-	//
-	// 	err = fast.PatchVM(programELF, vmState)
-	// 	require.NoError(t, err, "must patch VM")
-	//
-	// 	fullTest(t, vmState, po, symbols, true, false)
-	// })
+	t.Run("slow", func(t *testing.T) {
+		vmState, err := fast.LoadELF(programELF)
+		require.NoError(t, err, "must load test suite ELF binary")
+
+		err = fast.PatchVM(programELF, vmState)
+		require.NoError(t, err, "must patch VM")
+
+		fullTest(t, vmState, po, symbols, true, false)
+	})
 	//
 	// t.Run("evm", func(t *testing.T) {
 	// 	vmState, err := fast.LoadELF(programELF)
@@ -335,7 +335,7 @@ func TestRustWithoutStd(t *testing.T) {
 		fullTest(t, vmState, po, symbols, false, false)
 	})
 
-	t.Run("slow", func(t *testing.T) /
+	t.Run("slow", func(t *testing.T) {
 		vmState, err := fast.LoadELF(programELF)
 		require.NoError(t, err, "must load test suite ELF binary")
 

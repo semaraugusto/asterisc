@@ -8,6 +8,7 @@ rvsol/broadcast
 rvsol/deployments/devnetL1
 
 tests/go-tests/bin
+tests/rust-tests/*/target
 
 packages/contracts-bedrock
 .devnet

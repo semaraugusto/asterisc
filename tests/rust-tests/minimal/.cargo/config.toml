@@ -13,5 +13,5 @@ rustflags = [
 	# "-Clinker-plugin-lto=yes",
 	"-Ctarget-feature=+crt-static",
 	"-Ctarget-feature=+m",
-	"-Clink-arg=-s",
+	# "-Clink-arg=-s",
 ]
