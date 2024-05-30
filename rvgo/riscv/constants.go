@@ -31,6 +31,9 @@ const (
 	SysFutex            = 422
 	SysNanosleep        = 101
 
+	ZKVMHalt  = 0
+	ZKVMWrite = 2
+
 	FdStdin         = 0
 	FdStdout        = 1
 	FdStderr        = 2
@@ -38,6 +41,14 @@ const (
 	FdHintWrite     = 4
 	FdPreimageRead  = 5
 	FdPreimageWrite = 6
+
+	// FdStdin         = 0
+	// FdStdout        = 1
+	// FdStderr        = 2
+	// FdHintRead      = 3
+	// FdHintWrite     = 4
+	// FdPreimageRead  = 5
+	// FdPreimageWrite = 6
 
 	ErrUnrecognizedResource           = uint64(0xf0012)
 	ErrUnknownAtomicOperation         = uint64(0xf001a70)

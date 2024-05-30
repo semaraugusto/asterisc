@@ -373,6 +373,12 @@ func (inst *InstrumentedState) riscvStep() (outErr error) {
 			setExitCode(uint8(a0))
 			setExited()
 			// program stops here, no need to change registers.
+		case riscv.ZKVMHalt: // SYSCALL_HALT!!!!!
+			fmt.Printf("ZKVM HALT CALLED!!!!")
+			a0 := getRegister(toU64(10))
+			setExitCode(uint8(a0))
+			setExited()
+			// program stops here, no need to change registers.
 		case riscv.SysExitGroup: // exit-group
 			a0 := getRegister(toU64(10))
 			setExitCode(uint8(a0))
@@ -431,6 +437,51 @@ func (inst *InstrumentedState) riscvStep() (outErr error) {
 				errCode = toU64(0)
 			default:
 				n = u64Mask()         //  -1 (reading error)
+				errCode = toU64(0x4d) // EBADF
+			}
+			setRegister(toU64(10), n)
+			setRegister(toU64(11), errCode)
+		case riscv.ZKVMWrite: // write
+			fd := getRegister(toU64(10))    // A0 = fd
+			addr := getRegister(toU64(11))  // A1 = *buf addr
+			count := getRegister(toU64(12)) // A2 = count
+			var n U64
+			var errCode U64
+			switch fd {
+			case riscv.FdStdout: // stdout
+				_, err := io.Copy(inst.stdOut, s.Memory.ReadMemoryRange(addr, count))
+				if err != nil {
+					panic(fmt.Errorf("stdout writing err: %w", err))
+				}
+				n = count // write completes fully in single instruction step
+				errCode = toU64(0)
+			case riscv.FdStderr: // stderr
+				_, err := io.Copy(inst.stdErr, s.Memory.ReadMemoryRange(addr, count))
+				if err != nil {
+					panic(fmt.Errorf("stderr writing err: %w", err))
+				}
+				n = count // write completes fully in single instruction step
+				errCode = toU64(0)
+			case riscv.FdHintWrite: // hint-write
+				hintData, _ := io.ReadAll(s.Memory.ReadMemoryRange(addr, count))
+				s.LastHint = append(inst.state.LastHint, hintData...)
+				for len(s.LastHint) >= 4 { // process while there is enough data to check if there are any hints
+					hintLen := binary.BigEndian.Uint32(s.LastHint[:4])
+					if hintLen <= uint32(len(s.LastHint[4:])) {
+						hint := s.LastHint[4 : 4+hintLen] // without the length prefix
+						s.LastHint = s.LastHint[4+hintLen:]
+						inst.preimageOracle.Hint(hint)
+					} else {
+						break // stop processing hints if there is incomplete data buffered
+					}
+				}
+				n = count
+				errCode = toU64(0)
+			case riscv.FdPreimageWrite: // pre-image key write
+				n = writePreimageKey(addr, count)
+				errCode = toU64(0) // no error
+			default: // any other file, including (3) hint read (5) preimage read
+				n = u64Mask()         //  -1 (writing error)
 				errCode = toU64(0x4d) // EBADF
 			}
 			setRegister(toU64(10), n)
@@ -545,6 +596,7 @@ func (inst *InstrumentedState) riscvStep() (outErr error) {
 		case riscv.SysNanosleep: // nanosleep - not supported, for now
 			revertWithCode(riscv.ErrInvalidSyscall, &UnsupportedSyscallErr{SyscallNum: a7})
 		default:
+			fmt.Println("DEFAULTING SYSCALL: a7: %d", a7)
 			// Ignore(no-op) unsupported system calls
 			setRegister(toU64(10), toU64(0))
 			setRegister(toU64(11), toU64(0))
