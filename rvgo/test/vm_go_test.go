@@ -75,7 +75,7 @@ func fullTest(t *testing.T, vmState *fast.VMState, po *testOracle, symbols fast.
 	maxGasUsed := uint64(0)
 
 	// var lastSym elf.Symbol
-	for i := uint64(0); i < 2000_000; i++ {
+	for i := uint64(0); i < 20_000_000; i++ {
 		sym := symbols.FindSymbol(vmState.PC)
 
 		// if sym.Name != lastSym.Name {
@@ -309,6 +309,55 @@ func TestRustWithStd(t *testing.T) {
 
 func TestRustMatmul(t *testing.T) {
 	programELF, err := elf.Open("../../tests/rust-tests/bin/matmul")
+	require.NoError(t, err)
+	defer programELF.Close()
+
+	symbols, err := fast.Symbols(programELF)
+	require.NoError(t, err)
+
+	po := &testOracle{
+		hint: func(v []byte) {
+			t.Fatalf("unexpected pre-image hint %x", v)
+		},
+		getPreimage: func(k [32]byte) []byte {
+			t.Fatalf("unexpected pre-image request %x", k)
+			return nil
+		},
+	}
+
+	t.Run("fast", func(t *testing.T) {
+		vmState, err := fast.LoadELF(programELF)
+		require.NoError(t, err, "must load test suite ELF binary")
+
+		err = fast.PatchVM(programELF, vmState)
+		require.NoError(t, err, "must patch VM")
+
+		fullTest(t, vmState, po, symbols, false, false)
+	})
+	//
+	// t.Run("slow", func(t *testing.T) {
+	// 	vmState, err := fast.LoadELF(programELF)
+	// 	require.NoError(t, err, "must load test suite ELF binary")
+	//
+	// 	err = fast.PatchVM(programELF, vmState)
+	// 	require.NoError(t, err, "must patch VM")
+	//
+	// 	fullTest(t, vmState, po, symbols, true, false)
+	// })
+	//
+	// t.Run("evm", func(t *testing.T) {
+	// 	vmState, err := fast.LoadELF(programELF)
+	// 	require.NoError(t, err, "must load test suite ELF binary")
+	//
+	// 	err = fast.PatchVM(programELF, vmState)
+	// 	require.NoError(t, err, "must patch VM")
+	//
+	// 	fullTest(t, vmState, po, symbols, false, true)
+	// })
+}
+
+func TestRustMnist(t *testing.T) {
+	programELF, err := elf.Open("../../tests/rust-tests/bin/mnist")
 	require.NoError(t, err)
 	defer programELF.Close()
 
