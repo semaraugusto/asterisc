@@ -42,14 +42,6 @@ const (
 	FdPreimageRead  = 5
 	FdPreimageWrite = 6
 
-	// FdStdin         = 0
-	// FdStdout        = 1
-	// FdStderr        = 2
-	// FdHintRead      = 3
-	// FdHintWrite     = 4
-	// FdPreimageRead  = 5
-	// FdPreimageWrite = 6
-
 	ErrUnrecognizedResource           = uint64(0xf0012)
 	ErrUnknownAtomicOperation         = uint64(0xf001a70)
 	ErrUnknownOpCode                  = uint64(0xf001c0de)
