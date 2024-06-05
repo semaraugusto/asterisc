@@ -1,0 +1,13 @@
+[package]
+name = "onnx"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+sp1-zkvm = { path = "../../../../sp1/zkvm/entrypoint", version = "0.1.0" }
+anyhow = { version = "1", features = ["backtrace"] }
+# candle = { path = "../../../../candle/candle-core", package = "candle-core", version = "0.5.1" }
+candle = { path = "../../../../candle-fork/candle-core", package = "candle-core", version = "0.5.1" }
+candle-onnx = { path = "../../../../candle-fork/candle-onnx", version = "0.5.1" }
+clap = { version = "4.2.4", features = ["derive"] }
+hex = { version = "0.4.3" }
