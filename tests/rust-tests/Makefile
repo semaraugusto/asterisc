@@ -1,4 +1,4 @@
-all: bin bin/minimal bin/no_std bin/matmul bin/mnist
+all: bin bin/minimal bin/no_std bin/matmul bin/mnist bin/onnx
 
 bin:
 	mkdir bin
@@ -12,15 +12,20 @@ bin/no_std:
 	cd no_std && cargo +unicorn build --release --target riscv32im-succinct-zkvm-elf && cp ./target/riscv32im-succinct-zkvm-elf/release/no_std ../bin/no_std
 
 bin/matmul:
-	cd matmul && cargo +unicorn build --release --target riscv64im-unicorn-zkvm-elf && cp ./target/riscv64im-unicorn-zkvm-elf/release/matmul ../bin/matmul
-	# cd matmul && cargo +unicorn build --release --target riscv32im-succinct-zkvm-elf && cp ./target/riscv32im-succinct-zkvm-elf/release/matmul ../bin/matmul
+	# cd matmul && cargo +unicorn build --release --target riscv64im-unicorn-zkvm-elf && cp ./target/riscv64im-unicorn-zkvm-elf/release/matmul ../bin/matmul
+	cd matmul && cargo +unicorn build --release --target riscv32im-succinct-zkvm-elf && cp ./target/riscv32im-succinct-zkvm-elf/release/matmul ../bin/matmul
 	#
 bin/mnist:
-	cd mnist && cargo +unicorn build --release --target riscv64im-unicorn-zkvm-elf && cp ./target/riscv64im-unicorn-zkvm-elf/release/mnist ../bin/mnist
-	# cd mnist && cargo +unicorn build --release --target riscv32im-succinct-zkvm-elf && cp ./target/riscv32im-succinct-zkvm-elf/release/mnist ../bin/mnist
+	# cd mnist && cargo +unicorn build --release --target riscv64im-unicorn-zkvm-elf && cp ./target/riscv64im-unicorn-zkvm-elf/release/mnist ../bin/mnist
+	cd mnist && cargo +unicorn build --release --target riscv32im-succinct-zkvm-elf && cp ./target/riscv32im-succinct-zkvm-elf/release/mnist ../bin/mnist
+	#
+bin/onnx:
+	cd onnx && cargo +unicorn build --release --target riscv64im-unicorn-zkvm-elf && cp ./target/riscv64im-unicorn-zkvm-elf/release/onnx ../bin/onnx
+	# cd onnx && cargo +unicorn build --release --target riscv32im-succinct-zkvm-elf && cp ./target/riscv32im-succinct-zkvm-elf/release/onnx ../bin/onnx
 
 clean:
-	rm -rf bin && cd minimal && cargo clean && cd ../matmul && cargo clean && cd ../no_std && cargo clean && cd ../mnist && cargo clean
+	rm -rf bin && cd minimal && cargo clean && cd ../matmul && cargo clean && cd ../no_std && cargo clean && cd ../mnist && cargo clean && cd ../onnx && cargo clean
+
 
 
 

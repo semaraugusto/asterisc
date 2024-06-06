@@ -1,5 +1,5 @@
-#![no_main]
-sp1_zkvm::entrypoint!(main);
+// #![no_main]
+// sp1_zkvm::entrypoint!(main);
 
 use anyhow::Result;
 use candle::{DType, Device, Tensor};
@@ -77,10 +77,10 @@ fn flatten_to_bytes(value: &Tensor) -> Result<String, anyhow::Error> {
 }
 
 pub fn main() {
-    let model_bytes = include_str!("../model.bytes").trim().to_string();
-    let input_bytes = include_str!("../input.bytes").trim().to_string();
-    println!("model_bytes: {model_bytes}");
-    println!("input_bytes: {input_bytes}");
+    // let model_bytes = include_str!("../model.bytes").trim().to_string();
+    // let input_bytes = include_str!("../input.bytes").trim().to_string();
+    // println!("model_bytes: {model_bytes}");
+    // println!("input_bytes: {input_bytes}");
     let args = Args {
         // command: Command::Print {
         //     // model_bytes: "0x0803120c6261636b656e642d746573743a4a0a120a01781201791a0474657374220452656c75120a53696e676c6552656c755a130a0178120e0a0c080112080a0208010a02080262130a0179120e0a0c080112080a0208010a02080242021006".to_string(),
@@ -88,10 +88,10 @@ pub fn main() {
         //     model_bytes,
         // },
         command: Command::SimpleEval {
-            // model_bytes: "0x0803120c6261636b656e642d746573743a4a0a120a01781201791a0474657374220452656c75120a53696e676c6552656c755a130a0178120e0a0c080112080a0208010a02080262130a0179120e0a0c080112080a0208010a02080242021006".to_string(),
-            // input_bytes: "0x000080bf0000803f".to_string(),
-            model_bytes,
-            input_bytes,
+            model_bytes: "0x0803120c6261636b656e642d746573743a4a0a120a01781201791a0474657374220452656c75120a53696e676c6552656c755a130a0178120e0a0c080112080a0208010a02080262130a0179120e0a0c080112080a0208010a02080242021006".to_string(),
+            input_bytes: "0x000080bf0000803f".to_string(),
+            // model_bytes,
+            // input_bytes,
         },
     };
     println!("args: {args:?}");
@@ -117,6 +117,8 @@ pub fn main() {
             let input_buf = hex::decode(&input_bytes[2..]).unwrap(); // skip 0x prefix
             let mut inputs: std::collections::HashMap<String, Tensor> =
                 std::collections::HashMap::new();
+            println!("model: {model:?}");
+            println!("input_buf: {input_buf:?}");
 
             for input in graph.input.iter() {
                 use candle_onnx::onnx::tensor_proto::DataType;
@@ -129,6 +131,7 @@ pub fn main() {
                 let type_ = type_.value.as_ref().expect("no type.value for input");
                 // println!("{type_:?}");
                 let value = match type_ {
+                    // match type_ {
                     candle_onnx::onnx::type_proto::Value::TensorType(tt) => {
                         let dt = match DataType::try_from(tt.elem_type) {
                             Ok(dt) => match candle_onnx::dtype(dt) {
@@ -148,46 +151,46 @@ pub fn main() {
                         };
                         let shape = tt.shape.as_ref().expect("no tensortype.shape for input");
                         println!("{:?}", shape.dim);
-                        // let dims = shape.dim.iter().map(|dim| {
-                        //     println!("{:?}", dim);
-                        //     // match dim.value.as_ref().expect("no dim value") {
-                        //     //     candle_onnx::onnx::tensor_shape_proto::dimension::Value::DimValue(v) => Ok(*v as usize),
-                        //     //     candle_onnx::onnx::tensor_shape_proto::dimension::Value::DimParam(_) => Ok(42),
-                        //     // }
-                        //     42
-                        // });
-                        // // for dim in shape.dim.iter() {
-                        let mut dims = Vec::new();
-                        for dim in 0..2 {
+                        let dims = shape.dim.iter().map(|dim| {
                             println!("{:?}", dim);
-                            dims.push(42);
-                        }
-                        // .collect::<Result<Vec<usize>>>();
+                            match dim.value.as_ref().expect("no dim value") {
+                                candle_onnx::onnx::tensor_shape_proto::dimension::Value::DimValue(v) => Ok(*v as usize),
+                                candle_onnx::onnx::tensor_shape_proto::dimension::Value::DimParam(_) => Ok(42),
+                            }
+                            // 42
+                        })
+                        // // for dim in shape.dim.iter() {
+                        // let mut dims = Vec::new();
+                        // for dim in 0..2 {
+                        //     println!("{:?}", dim);
+                        //     dims.push(42);
+                        // }
+                        .collect::<Result<Vec<usize>>>().unwrap();
                         // .collect::<Vec<usize>>();
                         // println!("{:?}", dims);
-                        return;
-                        // Tensor::from_raw_buffer(input_buf.as_slice(), dt, &dims, &Device::Cpu)
-                        //     .unwrap()
+                        // return;
+                        Tensor::from_raw_buffer(input_buf.as_slice(), dt, &dims, &Device::Cpu)
+                            .unwrap()
                     }
                     type_ => {
                         println!("unsupported input type {type_:?}");
                         return;
                     }
                 };
-                // println!("input {}: {value:?}", input.name);
-                // inputs.insert(input.name.clone(), value);
+                println!("input {}: {value:?}", input.name);
+                inputs.insert(input.name.clone(), value);
             }
-            // // reject inputs with length > 1
-            // if inputs.len() > 1 || inputs.is_empty() {
-            //     panic!("only one input is supported");
-            // }
-            // let outputs = candle_onnx::simple_eval(&model, inputs).unwrap();
-            // if outputs.len() > 1 || outputs.is_empty() {
-            //     panic!("only one output is supported");
-            // }
-            // let (name, value) = outputs.iter().next().unwrap();
-            // let output = flatten_to_bytes(value).unwrap();
-            // println!("output {name}: {output:?} {value}");
+            // reject inputs with length > 1
+            if inputs.len() > 1 || inputs.is_empty() {
+                panic!("only one input is supported");
+            }
+            let outputs = candle_onnx::simple_eval(&model, inputs).unwrap();
+            if outputs.len() > 1 || outputs.is_empty() {
+                panic!("only one output is supported");
+            }
+            let (name, value) = outputs.iter().next().unwrap();
+            let output = flatten_to_bytes(value).unwrap();
+            println!("output {name}: {output:?} {value}");
         }
     }
 }
