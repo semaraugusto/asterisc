@@ -1,5 +1,6 @@
-// #![no_main]
-// sp1_zkvm::entrypoint!(main);
+#![no_main]
+// use linked_list_allocator::LockedHeap;
+sp1_zkvm::entrypoint!(main);
 
 use anyhow::Result;
 use candle::{DType, Device, Tensor};
@@ -117,8 +118,6 @@ pub fn main() {
             let input_buf = hex::decode(&input_bytes[2..]).unwrap(); // skip 0x prefix
             let mut inputs: std::collections::HashMap<String, Tensor> =
                 std::collections::HashMap::new();
-            println!("model: {model:?}");
-            println!("input_buf: {input_buf:?}");
 
             for input in graph.input.iter() {
                 use candle_onnx::onnx::tensor_proto::DataType;
@@ -127,11 +126,8 @@ pub fn main() {
                 }
 
                 let type_ = input.r#type.as_ref().expect("no type for input");
-                // println!("{type_:?}");
                 let type_ = type_.value.as_ref().expect("no type.value for input");
-                // println!("{type_:?}");
                 let value = match type_ {
-                    // match type_ {
                     candle_onnx::onnx::type_proto::Value::TensorType(tt) => {
                         let dt = match DataType::try_from(tt.elem_type) {
                             Ok(dt) => match candle_onnx::dtype(dt) {
@@ -159,16 +155,7 @@ pub fn main() {
                             }
                             // 42
                         })
-                        // // for dim in shape.dim.iter() {
-                        // let mut dims = Vec::new();
-                        // for dim in 0..2 {
-                        //     println!("{:?}", dim);
-                        //     dims.push(42);
-                        // }
                         .collect::<Result<Vec<usize>>>().unwrap();
-                        // .collect::<Vec<usize>>();
-                        // println!("{:?}", dims);
-                        // return;
                         Tensor::from_raw_buffer(input_buf.as_slice(), dt, &dims, &Device::Cpu)
                             .unwrap()
                     }

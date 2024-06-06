@@ -10,4 +10,5 @@ anyhow = { version = "1", features = ["backtrace"] }
 candle = { path = "../../../../candle-fork/candle-core", package = "candle-core", version = "0.5.1" }
 candle-onnx = { path = "../../../../candle-fork/candle-onnx", version = "0.5.1" }
 clap = { version = "4.2.4", features = ["derive"] }
+linked_list_allocator = "0.10.5"
 hex = { version = "0.4.3" }
