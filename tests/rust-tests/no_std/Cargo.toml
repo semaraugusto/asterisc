@@ -4,3 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+kona-common = { path = "./kona/crates/common" }
+kona-common-proc = { path = "./kona/crates/common-proc" }
+cfg-if = "1.0.0"
+anyhow = { version = "1.0.79", default-features = false }

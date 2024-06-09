@@ -1,6 +1,7 @@
 package test
 
 import (
+	"bytes"
 	"debug/elf"
 	"encoding/binary"
 	"fmt"
@@ -309,7 +310,8 @@ func TestRustWithStd(t *testing.T) {
 }
 
 func TestRustMatmul(t *testing.T) {
-	programELF, err := elf.Open("../../tests/rust-tests/bin/matmul")
+	programELF, err := elf.Open("../../tests/rust-tests/matmul/target/riscv64im-unicorn-zkvm-elf/release/matmul")
+	// programELF, err := elf.Open("../../tests/rust-tests/matmul/target/riscv32im-succinct-zkvm-elf/release/matmul")
 	require.NoError(t, err)
 	defer programELF.Close()
 
@@ -358,7 +360,8 @@ func TestRustMatmul(t *testing.T) {
 }
 
 func TestRustMnist(t *testing.T) {
-	programELF, err := elf.Open("../../tests/rust-tests/bin/mnist")
+	programELF, err := elf.Open("../../tests/rust-tests/mnist/target/riscv64im-unicorn-zkvm-elf/release/mnist")
+	// programELF, err := elf.Open("../../tests/rust-tests/mnist/target/riscv32im-succinct-zkvm-elf/release/mnist")
 	require.NoError(t, err)
 	defer programELF.Close()
 
@@ -457,102 +460,125 @@ func TestRustOnnx(t *testing.T) {
 	// })
 }
 
-// func TestRustCross(t *testing.T) {
-// 	// programELF, err := elf.Open("../../../rust-cross/target/riscv32im-succinct-zkvm-elf/release/rust-cross")
-// 	programELF, err := elf.Open("../../../rust-cross/target/riscv64im-unicorn-zkvm-elf/release/rust-cross")
-// 	require.NoError(t, err)
-// 	defer programELF.Close()
-//
-// 	symbols, err := fast.Symbols(programELF)
-// 	require.NoError(t, err)
-//
-// 	po := &testOracle{
-// 		hint: func(v []byte) {
-// 			t.Fatalf("unexpected pre-image hint %x", v)
-// 		},
-// 		getPreimage: func(k [32]byte) []byte {
-// 			t.Fatalf("unexpected pre-image request %x", k)
-// 			return nil
-// 		},
-// 	}
-//
-// 	t.Run("fast", func(t *testing.T) {
-// 		vmState, err := fast.LoadELF(programELF)
-// 		require.NoError(t, err, "must load test suite ELF binary")
-//
-// 		err = fast.PatchVM(programELF, vmState)
-// 		require.NoError(t, err, "must patch VM")
-//
-// 		fullTest(t, vmState, po, symbols, false, false)
-// 		fmt.Println("after fullTest")
-// 	})
-// 	//
-// 	// t.Run("slow", func(t *testing.T) {
-// 	// 	vmState, err := fast.LoadELF(programELF)
-// 	// 	require.NoError(t, err, "must load test suite ELF binary")
-// 	//
-// 	// 	err = fast.PatchVM(programELF, vmState)
-// 	// 	require.NoError(t, err, "must patch VM")
-// 	//
-// 	// 	fullTest(t, vmState, po, symbols, true, false)
-// 	// })
-// 	//
-// 	// t.Run("evm", func(t *testing.T) {
-// 	// 	vmState, err := fast.LoadELF(programELF)
-// 	// 	require.NoError(t, err, "must load test suite ELF binary")
-// 	//
-// 	// 	err = fast.PatchVM(programELF, vmState)
-// 	// 	require.NoError(t, err, "must patch VM")
-// 	//
-// 	// 	fullTest(t, vmState, po, symbols, false, true)
-// 	// })
-// }
+func TestRustCross(t *testing.T) {
+	t.Skip("rust-cross is only available on my machine")
+	// programELF, err := elf.Open("../../../rust-cross/target/riscv32im-succinct-zkvm-elf/release/rust-cross")
+	programELF, err := elf.Open("../../../rust-cross/target/riscv64im-unicorn-zkvm-elf/release/rust-cross")
+	require.NoError(t, err)
+	defer programELF.Close()
 
-// func TestRustWithoutStd(t *testing.T) {
-// 	programELF, err := elf.Open("../../tests/rust-tests/bin/no_std")
-// 	require.NoError(t, err)
-// 	defer programELF.Close()
-//
-// 	symbols, err := fast.Symbols(programELF)
-// 	require.NoError(t, err)
-//
-// 	po := &testOracle{
-// 		hint: func(v []byte) {
-// 			t.Fatalf("unexpected pre-image hint %x", v)
-// 		},
-// 		getPreimage: func(k [32]byte) []byte {
-// 			t.Fatalf("unexpected pre-image request %x", k)
-// 			return nil
-// 		},
-// 	}
-//
-// 	t.Run("fast", func(t *testing.T) {
-// 		vmState, err := fast.LoadELF(programELF)
-// 		require.NoError(t, err, "must load test suite ELF binary")
-//
-// 		err = fast.PatchVM(programELF, vmState)
-// 		require.NoError(t, err, "must patch VM")
-//
-// 		fullTest(t, vmState, po, symbols, false, false)
-// 	})
-//
-// 	// t.Run("slow", func(t *testing.T) {
-// 	// 	vmState, err := fast.LoadELF(programELF)
-// 	// 	require.NoError(t, err, "must load test suite ELF binary")
-// 	//
-// 	// 	err = fast.PatchVM(programELF, vmState)
-// 	// 	require.NoError(t, err, "must patch VM")
-// 	//
-// 	// 	fullTest(t, vmState, po, symbols, true, false)
-// 	// })
-// 	//
-// 	// t.Run("evm", func(t *testing.T) {
-// 	// 	vmState, err := fast.LoadELF(programELF)
-// 	// 	require.NoError(t, err, "must load test suite ELF binary")
-// 	//
-// 	// 	err = fast.PatchVM(programELF, vmState)
-// 	// 	require.NoError(t, err, "must patch VM")
-// 	//
-// 	// 	fullTest(t, vmState, po, symbols, false, true)
-// 	// })
-// }
+	symbols, err := fast.Symbols(programELF)
+	require.NoError(t, err)
+
+	po := &testOracle{
+		hint: func(v []byte) {
+			t.Fatalf("unexpected pre-image hint %x", v)
+		},
+		getPreimage: func(k [32]byte) []byte {
+			t.Fatalf("unexpected pre-image request %x", k)
+			return nil
+		},
+	}
+
+	t.Run("fast", func(t *testing.T) {
+		vmState, err := fast.LoadELF(programELF)
+		require.NoError(t, err, "must load test suite ELF binary")
+
+		err = fast.PatchVM(programELF, vmState)
+		require.NoError(t, err, "must patch VM")
+
+		fullTest(t, vmState, po, symbols, false, false)
+		fmt.Println("after fullTest")
+	})
+	//
+	// t.Run("slow", func(t *testing.T) {
+	// 	vmState, err := fast.LoadELF(programELF)
+	// 	require.NoError(t, err, "must load test suite ELF binary")
+	//
+	// 	err = fast.PatchVM(programELF, vmState)
+	// 	require.NoError(t, err, "must patch VM")
+	//
+	// 	fullTest(t, vmState, po, symbols, true, false)
+	// })
+	//
+	// t.Run("evm", func(t *testing.T) {
+	// 	vmState, err := fast.LoadELF(programELF)
+	// 	require.NoError(t, err, "must load test suite ELF binary")
+	//
+	// 	err = fast.PatchVM(programELF, vmState)
+	// 	require.NoError(t, err, "must patch VM")
+	//
+	// 	fullTest(t, vmState, po, symbols, false, true)
+	// })
+}
+
+func TestRustWithoutStd(t *testing.T) {
+	programELF, err := elf.Open("../../tests/rust-tests/no_std/target/riscv64gc-unknown-none-elf/release/no_std")
+	require.NoError(t, err)
+	defer programELF.Close()
+
+	symbols, err := fast.Symbols(programELF)
+	require.NoError(t, err)
+
+	po := &testOracle{
+		hint: func(v []byte) {
+			t.Fatalf("unexpected pre-image hint %x", v)
+		},
+		getPreimage: func(k [32]byte) []byte {
+			t.Fatalf("unexpected pre-image request %x", k)
+			return nil
+		},
+	}
+
+	t.Run("fast", func(t *testing.T) {
+		vmState, err := fast.LoadELF(programELF)
+		require.NoError(t, err, "must load test suite ELF binary")
+
+		err = fast.PatchVM(programELF, vmState)
+		require.NoError(t, err, "must patch VM")
+
+		// get memory reader
+		var oneAsBytes []byte
+		var tenAsBytes []byte
+		BIG_ENDIAN := false
+		if BIG_ENDIAN {
+			// oneAsBytes := make([]byte, 7)
+			oneAsBytes = []byte{0, 0, 0, 0, 0, 0, 0, 1}
+			tenAsBytes = []byte{0, 0, 0, 0, 0, 0, 0, 10}
+		} else {
+			oneAsBytes = []byte{1, 0, 0, 0, 0, 0, 0, 0}
+			tenAsBytes = []byte{10, 0, 0, 0, 0, 0, 0, 0}
+		}
+		fmt.Println("oneAsBytes: ", oneAsBytes)
+		fmt.Println("tenAsBytes: ", tenAsBytes)
+		// r := vmState.Memory.AllocPage(0)
+		if err = vmState.Memory.SetMemoryRange(0x1000, bytes.NewReader(oneAsBytes)); err != nil { // disable mem profiling, to avoid a lot of unnecessary floating point ops
+			require.NoError(t, err, "Cannot set memory range for one")
+		}
+
+		if err = vmState.Memory.SetMemoryRange(0x1008, bytes.NewReader(tenAsBytes)); err != nil { // disable mem profiling, to avoid a lot of unnecessary floating point ops
+			require.NoError(t, err, "Cannot set memory range for ten")
+		}
+		fullTest(t, vmState, po, symbols, false, false)
+	})
+
+	// t.Run("slow", func(t *testing.T) {
+	// 	vmState, err := fast.LoadELF(programELF)
+	// 	require.NoError(t, err, "must load test suite ELF binary")
+	//
+	// 	err = fast.PatchVM(programELF, vmState)
+	// 	require.NoError(t, err, "must patch VM")
+	//
+	// 	fullTest(t, vmState, po, symbols, true, false)
+	// })
+	//
+	// t.Run("evm", func(t *testing.T) {
+	// 	vmState, err := fast.LoadELF(programELF)
+	// 	require.NoError(t, err, "must load test suite ELF binary")
+	//
+	// 	err = fast.PatchVM(programELF, vmState)
+	// 	require.NoError(t, err, "must patch VM")
+	//
+	// 	fullTest(t, vmState, po, symbols, false, true)
+	// })
+}
