@@ -1,11 +1,10 @@
 // #![no_std]
-#![cfg_attr(target_arch = "riscv64", no_main)]
 
-// use alloc::format;
+use alloc::format;
 use alloc::vec::Vec;
 use core::mem;
 use core::slice;
-// use kona_common::io;
+use kona_common::io;
 
 // pub const ENDIANNESS: bool = true; // big endian
 pub const ENDIANNESS: bool = false; // little endian
@@ -240,7 +239,29 @@ pub fn halt(exit_code: u8) -> ! {
         );
         unreachable!()
     }
+    #[cfg(not(any(target_arch = "riscv32", target_arch = "riscv64")))]
     core::panic!("[HOST] Halted with exit code: {}", exit_code)
+}
+
+pub fn hash(bytes: &[u8]) {
+    #[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
+    {
+        io::print(&format!(
+            "raw_bytes at: {:?} {:?}!\n",
+            bytes.as_ptr(),
+            &bytes
+        ));
+        unsafe {
+            core::arch::asm!(
+                "ecall",
+                in("a7") 0x0001_0109, // keccak permute syscall
+                in("a0") bytes.as_ptr(),
+                in("a1") bytes.len(),
+            );
+        }
+    }
+    #[cfg(not(any(target_arch = "riscv32", target_arch = "riscv64")))]
+    unreachable!("Should only be called on riscv")
 }
 
 pub fn read_byte_slice(addr: &'_ usize) -> &'_ [u8] {

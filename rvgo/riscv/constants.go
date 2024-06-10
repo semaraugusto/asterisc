@@ -31,8 +31,10 @@ const (
 	SysFutex            = 422
 	SysNanosleep        = 101
 
-	ZKVMHalt  = 0
-	ZKVMWrite = 2
+	ZKVMHalt     = 0
+	ZKVMWrite    = 2
+	ZKVMKeccak   = uint64(0x0001_0109)
+	ZKVMHashAddr = uint64(0xf000_0000)
 
 	FdStdin         = 0
 	FdStdout        = 1
@@ -58,4 +60,6 @@ const (
 	ErrBadAMOSize                     = uint64(0xbada70)
 	ErrFailToReadPreimage             = uint64(0xbadf00d0)
 	ErrBadMemoryProof                 = uint64(0xbadf00d1)
+
+	ErrFailToHashBuffer = uint64(0xbadf00d2)
 )

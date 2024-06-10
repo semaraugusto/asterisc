@@ -1,11 +1,13 @@
 package fast
 
 import (
+	"bytes"
 	"encoding/binary"
 	"fmt"
 	"io"
 
 	"github.com/ethereum-optimism/asterisc/rvgo/riscv"
+	"golang.org/x/crypto/sha3"
 )
 
 type UnsupportedSyscallErr struct {
@@ -390,6 +392,27 @@ func (inst *InstrumentedState) riscvStep() (outErr error) {
 			v := shl64(toU64(30), toU64(1)) // set program break at 1 GiB
 			setRegister(toU64(10), v)
 			setRegister(toU64(11), toU64(0)) // no error
+		case riscv.ZKVMKeccak: // keccak hash
+			hasher := sha3.NewLegacyKeccak256()
+			// A0 = buf addr
+			bufAddr := getRegister(toU64(10))
+			// A1 = n (length)
+			length := getRegister(toU64(11))
+			// buf := Me
+			fmt.Printf("bufAddr: 0x%016x (0x%x bytes)\n", bufAddr, length)
+			p := make([]byte, length)
+			bufReader := s.Memory.ReadMemoryRange(bufAddr, length)
+			n, err := bufReader.Read(p)
+			if err != nil || uint64(n) != length {
+				revertWithCode(riscv.ErrFailToHashBuffer, err)
+			}
+			hasher.Write(p)
+
+			output := hasher.Sum(nil)
+			fmt.Printf("output hash: 0x%032x\n", output)
+
+			s.Memory.SetMemoryRange(riscv.ZKVMHashAddr, bytes.NewReader(output))
+
 		case riscv.SysMmap: // mmap
 			// A0 = addr (hint)
 			addr := getRegister(toU64(10))
