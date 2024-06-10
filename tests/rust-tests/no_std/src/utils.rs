@@ -56,14 +56,22 @@ impl FromBytes for u64 {
 
 impl ToBytes for u64 {
     fn to_le_bytes<const N: usize>(a: Self) -> [u8; N] {
-        assert_eq!(N, 8);
+        assert_eq!(N, 8, "incorrect length");
         let val = u64::to_le_bytes(a);
-        unsafe { *val.as_chunks_unchecked::<N>().first().unwrap() }
+        unsafe {
+            *val.as_chunks_unchecked::<N>()
+                .first()
+                .expect("should be of correct length")
+        }
     }
     fn to_be_bytes<const N: usize>(a: Self) -> [u8; N] {
-        assert_eq!(N, 8);
+        assert_eq!(N, 8, "incorrect length");
         let val = u64::to_be_bytes(a);
-        unsafe { *val.as_chunks_unchecked::<N>().first().unwrap() }
+        unsafe {
+            *val.as_chunks_unchecked::<N>()
+                .first()
+                .expect("should be of correct length")
+        }
     }
 }
 
@@ -78,14 +86,22 @@ impl FromBytes for u32 {
 
 impl ToBytes for u32 {
     fn to_le_bytes<const N: usize>(a: Self) -> [u8; N] {
-        assert_eq!(N, 4);
+        assert_eq!(N, 4, "incorrect length");
         let val = u32::to_le_bytes(a);
-        unsafe { *val.as_chunks_unchecked::<N>().first().unwrap() }
+        unsafe {
+            *val.as_chunks_unchecked::<N>()
+                .first()
+                .expect("should be of correct length")
+        }
     }
     fn to_be_bytes<const N: usize>(a: Self) -> [u8; N] {
-        assert_eq!(N, 4);
+        assert_eq!(N, 4, "incorrect length");
         let val = u32::to_be_bytes(a);
-        unsafe { *val.as_chunks_unchecked::<N>().first().unwrap() }
+        unsafe {
+            *val.as_chunks_unchecked::<N>()
+                .first()
+                .expect("should be of correct length")
+        }
     }
 }
 
@@ -100,14 +116,22 @@ impl FromBytes for u8 {
 
 impl ToBytes for u8 {
     fn to_le_bytes<const N: usize>(a: Self) -> [u8; N] {
-        assert_eq!(N, 1);
+        assert_eq!(N, 1, "incorrect length");
         let val = u8::to_le_bytes(a);
-        unsafe { *val.as_chunks_unchecked::<N>().first().unwrap() }
+        unsafe {
+            *val.as_chunks_unchecked::<N>()
+                .first()
+                .expect("should be of correct length")
+        }
     }
     fn to_be_bytes<const N: usize>(a: Self) -> [u8; N] {
-        assert_eq!(N, 1);
+        assert_eq!(N, 1, "incorrect length");
         let val = u8::to_be_bytes(a);
-        unsafe { *val.as_chunks_unchecked::<N>().first().unwrap() }
+        unsafe {
+            *val.as_chunks_unchecked::<N>()
+                .first()
+                .expect("should be of correct length")
+        }
     }
 }
 
@@ -122,14 +146,22 @@ impl FromBytes for i64 {
 
 impl ToBytes for i64 {
     fn to_le_bytes<const N: usize>(a: Self) -> [u8; N] {
-        assert_eq!(N, 8);
+        assert_eq!(N, 8, "incorrect length");
         let val = i64::to_le_bytes(a);
-        unsafe { *val.as_chunks_unchecked::<N>().first().unwrap() }
+        unsafe {
+            *val.as_chunks_unchecked::<N>()
+                .first()
+                .expect("should be of correct length")
+        }
     }
     fn to_be_bytes<const N: usize>(a: Self) -> [u8; N] {
-        assert_eq!(N, 8);
+        assert_eq!(N, 8, "incorrect length");
         let val = i64::to_be_bytes(a);
-        unsafe { *val.as_chunks_unchecked::<N>().first().unwrap() }
+        unsafe {
+            *val.as_chunks_unchecked::<N>()
+                .first()
+                .expect("should be of correct length")
+        }
     }
 }
 
@@ -144,14 +176,22 @@ impl FromBytes for i32 {
 
 impl ToBytes for i32 {
     fn to_le_bytes<const N: usize>(a: Self) -> [u8; N] {
-        assert_eq!(N, 4);
+        assert_eq!(N, 4, "incorrect length");
         let val = i32::to_le_bytes(a);
-        unsafe { *val.as_chunks_unchecked::<N>().first().unwrap() }
+        unsafe {
+            *val.as_chunks_unchecked::<N>()
+                .first()
+                .expect("should be of correct length")
+        }
     }
     fn to_be_bytes<const N: usize>(a: Self) -> [u8; N] {
-        assert_eq!(N, 4);
+        assert_eq!(N, 4, "incorrect length");
         let val = i32::to_be_bytes(a);
-        unsafe { *val.as_chunks_unchecked::<N>().first().unwrap() }
+        unsafe {
+            *val.as_chunks_unchecked::<N>()
+                .first()
+                .expect("should be of correct length")
+        }
     }
 }
 
@@ -167,20 +207,28 @@ impl FromBytes for usize {
 impl ToBytes for usize {
     fn to_le_bytes<const N: usize>(a: Self) -> [u8; N] {
         #[cfg(target_pointer_width = "64")]
-        assert_eq!(N, 8);
+        assert_eq!(N, 8, "incorrect length");
         #[cfg(target_pointer_width = "32")]
-        assert_eq!(N, 4);
+        assert_eq!(N, 4, "incorrect length");
 
         let val = usize::to_le_bytes(a);
-        unsafe { *val.as_chunks_unchecked::<N>().first().unwrap() }
+        unsafe {
+            *val.as_chunks_unchecked::<N>()
+                .first()
+                .expect("should be of correct length")
+        }
     }
     fn to_be_bytes<const N: usize>(a: Self) -> [u8; N] {
         #[cfg(target_pointer_width = "64")]
-        assert_eq!(N, 8);
+        assert_eq!(N, 8, "incorrect length");
         #[cfg(target_pointer_width = "32")]
-        assert_eq!(N, 4);
+        assert_eq!(N, 4, "incorrect length");
         let val = usize::to_be_bytes(a);
-        unsafe { *val.as_chunks_unchecked::<N>().first().unwrap() }
+        unsafe {
+            *val.as_chunks_unchecked::<N>()
+                .first()
+                .expect("should be of correct length")
+        }
     }
 }
 
@@ -195,20 +243,28 @@ impl FromBytes for isize {
 impl ToBytes for isize {
     fn to_le_bytes<const N: usize>(a: Self) -> [u8; N] {
         #[cfg(target_pointer_width = "64")]
-        assert_eq!(N, 8);
+        assert_eq!(N, 8, "incorrect length");
         #[cfg(target_pointer_width = "32")]
-        assert_eq!(N, 4);
+        assert_eq!(N, 4, "incorrect length");
         let val = isize::to_le_bytes(a);
-        unsafe { *val.as_chunks_unchecked::<N>().first().unwrap() }
+        unsafe {
+            *val.as_chunks_unchecked::<N>()
+                .first()
+                .expect("should be of correct length")
+        }
     }
     fn to_be_bytes<const N: usize>(a: Self) -> [u8; N] {
         #[cfg(target_pointer_width = "64")]
-        assert_eq!(N, 8);
+        assert_eq!(N, 8, "incorrect length");
         #[cfg(target_pointer_width = "32")]
-        assert_eq!(N, 4);
+        assert_eq!(N, 4, "incorrect length");
 
         let val = isize::to_be_bytes(a);
-        unsafe { *val.as_chunks_unchecked::<N>().first().unwrap() }
+        unsafe {
+            *val.as_chunks_unchecked::<N>()
+                .first()
+                .expect("should be of correct length")
+        }
     }
 }
 
